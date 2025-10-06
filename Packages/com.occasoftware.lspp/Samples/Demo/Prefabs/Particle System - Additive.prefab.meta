@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 36b2e4ca3b90b7748b992791c107b07f
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 259947
+  packageName: LSPP - Fast God Rays and Volumetric Lighting for URP
+  packageVersion: 3.3.1
+  assetPath: Packages/com.occasoftware.lspp/Samples/Demo/Prefabs/Particle System
+    - Additive.prefab
+  uploadId: 732328

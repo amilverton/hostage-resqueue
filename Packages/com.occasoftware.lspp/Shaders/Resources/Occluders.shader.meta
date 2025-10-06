@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 2275d7dcd289b0c4294d94c35697a731
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  preprocessorOverride: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 259947
+  packageName: LSPP - Fast God Rays and Volumetric Lighting for URP
+  packageVersion: 3.3.1
+  assetPath: Packages/com.occasoftware.lspp/Shaders/Resources/Occluders.shader
+  uploadId: 732328

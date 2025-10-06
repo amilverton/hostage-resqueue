@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 02bf0d969c590954e9b9c929ce22a5ad
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 259947
+  packageName: LSPP - Fast God Rays and Volumetric Lighting for URP
+  packageVersion: 3.3.1
+  assetPath: Packages/com.occasoftware.lspp/Samples/Demo/Levels/LightScatteringDemo_P/PP_Demo.asset
+  uploadId: 732328

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: fda1082ff26b4a64e8604842a060cd44
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 259947
+  packageName: LSPP - Fast God Rays and Volumetric Lighting for URP
+  packageVersion: 3.3.1
+  assetPath: Packages/com.occasoftware.lspp/Samples/Demo/Materials/M_Particle_Opaque.mat
+  uploadId: 732328

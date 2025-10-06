@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 65a964a6bcb66c14b80b20d887e633ce
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 259947
+  packageName: LSPP - Fast God Rays and Volumetric Lighting for URP
+  packageVersion: 3.3.1
+  assetPath: Packages/com.occasoftware.lspp/Runtime/OccaSoftware.LSPP.Runtime.asmdef
+  uploadId: 732328

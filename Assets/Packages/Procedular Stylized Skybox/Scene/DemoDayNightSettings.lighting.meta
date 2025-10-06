@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: a1b263e898528d44d9c0106e74e1327a
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 4890085278179872738
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 304416
+  packageName: Procedural Stylized Sky
+  packageVersion: 1.11
+  assetPath: Assets/Procedular Stylized Skybox/Scene/DemoDayNightSettings.lighting
+  uploadId: 734600
