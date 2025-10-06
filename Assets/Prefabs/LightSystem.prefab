@@ -28,8 +28,8 @@ Transform:
   m_GameObject: {fileID: 1467517726293756284}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.9997897, z: -0, w: 0.020506287}
-  m_LocalPosition: {x: -460.287, y: 22, z: -46.806168}
-  m_LocalScale: {x: 2499, y: 2499, z: 2499}
+  m_LocalPosition: {x: 3.0065835, y: -8.96712, z: 10.641782}
+  m_LocalScale: {x: 999, y: 999, z: 999}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3177637324638507697}
@@ -122,7 +122,7 @@ MonoBehaviour:
   fogAxisMode: 1
   fogLayersMode: 10
   fogCameraMode: 0
-  fogColorStart: {r: 0.6139486, g: 0.5573714, b: 0.6140697, a: 1}
+  fogColorStart: {r: 0.7633368, g: 0.7923519, b: 0.845369, a: 1}
   fogColorEnd: {r: 0, g: 0, b: 0, a: 1}
   fogColorDuo: 0
   fogDistanceStart: 21
@@ -143,7 +143,7 @@ MonoBehaviour:
   categoryDirectional: 1
   directionalIntensity: 0.777
   directionalFalloff: 7.61
-  directionalColor: {r: 0.9966319, g: 0.99738884, b: 0.99831396, a: 1}
+  directionalColor: {r: 0.9788164, g: 0.9835771, b: 0.9893957, a: 1}
   categoryNoise: 1
   noiseIntensity: 0.649
   noiseMin: 0
@@ -203,8 +203,8 @@ Light:
   m_Enabled: 1
   serializedVersion: 11
   m_Type: 1
-  m_Color: {r: 0.52935004, g: 0.5455555, b: 0.5757569, a: 1}
-  m_Intensity: 0.015466811
+  m_Color: {r: 0.5293517, g: 0.5455432, b: 0.57577604, a: 1}
+  m_Intensity: 0.011885243
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -313,7 +313,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5817433115453767685}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.09899141, y: -0.28997177, z: 0.030170275, w: 0.9514236}
+  m_LocalRotation: {x: 0.1555721, y: -0.28765556, z: 0.047414754, w: 0.9438239}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -330,8 +330,8 @@ Light:
   m_Enabled: 1
   serializedVersion: 11
   m_Type: 1
-  m_Color: {r: 0.9966319, g: 0.99738884, b: 0.99831396, a: 1}
-  m_Intensity: 1.8995512
+  m_Color: {r: 0.9788164, g: 0.9835771, b: 0.9893957, a: 1}
+  m_Intensity: 2.0352197
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -425,7 +425,7 @@ GameObject:
   - component: {fileID: 3441693402404187423}
   - component: {fileID: 6793749899373622747}
   m_Layer: 0
-  m_Name: LightSystem 1
+  m_Name: LightSystem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -440,7 +440,7 @@ Transform:
   m_GameObject: {fileID: 7733295642641311979}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.9997897, z: -0, w: 0.020506287}
-  m_LocalPosition: {x: -1.3191528, y: 0, z: 1.106781}
+  m_LocalPosition: {x: 3.44041, y: 9.96712, z: 0.50955}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -462,7 +462,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sun: {fileID: 5589805329839864971}
   moon: {fileID: 8537628101397821130}
-  currentTimeOfDay: 0.283
+  currentTimeOfDay: 0.302
   dayColor:
     serializedVersion: 2
     key0: {r: 0, g: 0, b: 0, a: 1}
