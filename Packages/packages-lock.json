@@ -26,6 +26,14 @@
         "com.gurbu.gpui-pro": "0.12.2"
       }
     },
+    "com.occasoftware.buto": {
+      "version": "file:com.occasoftware.buto",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.unity.render-pipelines.universal": "14.0.7"
+      }
+    },
     "com.occasoftware.lspp": {
       "version": "file:com.occasoftware.lspp",
       "depth": 0,
