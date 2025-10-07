@@ -13,17 +13,13 @@ namespace Roads
         {
             var tile = grid.Get(position.x, position.y);
 
-            // Early exit: already set (Start/Exit)
-            if (tile.Type == RoadTileType.Start || tile.Type == RoadTileType.Exit)
-            {
-                return tile;
-            }
-
             // Early exit: empty tile
             if (tile.Type == RoadTileType.None)
             {
                 return tile;
             }
+
+            bool isSpecial = tile.Type == RoadTileType.Start || tile.Type == RoadTileType.Exit;
 
             // Check connections
             bool north = GridUtility.HasRoadNeighbor(grid, position, Direction.North);
@@ -42,9 +38,11 @@ namespace Roads
             switch (connectionCount)
             {
                 case 1:
-                    // Single connection = dead end (not straight road)
-                    tile.Type = RoadTileType.DeadEnd;
                     tile.Rotation = CalculateDeadEndRotation(north, south, east, west);
+                    if (!isSpecial)
+                    {
+                        tile.Type = RoadTileType.DeadEnd;
+                    }
                     break;
 
                 case 2:
@@ -73,8 +71,8 @@ namespace Roads
                     break;
 
                 default:
-                    // Should not happen
-                    tile.Type = RoadTileType.None;
+                    // No valid connections; leave existing type but reset rotation
+                    tile.Rotation = 0;
                     break;
             }
 

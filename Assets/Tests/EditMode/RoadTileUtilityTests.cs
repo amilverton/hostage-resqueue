@@ -45,6 +45,24 @@ namespace RoadsTests
             Assert.AreEqual(270, result.Rotation);
         }
 
+        [Test]
+        public void DetermineTileType_SpecialTilesAlignLikeDeadEnds()
+        {
+            var grid = CreateGrid(3, 3);
+
+            SetTile(grid, 1, 1, RoadTileType.Start);
+            SetTile(grid, 1, 2, RoadTileType.Straight);
+
+            var result = RoadTileUtility.DetermineTileType(
+                grid,
+                new Vector2Int(1, 1),
+                roundaboutProbability: 0f,
+                random: new System.Random(0));
+
+            Assert.AreEqual(RoadTileType.Start, result.Type);
+            Assert.AreEqual(0, result.Rotation);
+        }
+
         private static Grid2D<RoadTileData> CreateGrid(int width, int height)
         {
             var grid = new Grid2D<RoadTileData>(width, height);
