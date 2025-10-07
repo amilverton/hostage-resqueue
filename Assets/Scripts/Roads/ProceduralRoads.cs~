@@ -1,24 +1,316 @@
-﻿namespace Roads
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace Roads
 {
-    public class ProceduralRoads
+    public class ProceduralRoads : MonoBehaviour
     {
-        
-        // We will have the following road types
-        
-        // 1. Straight Road
-        // 2. Corner Road
-        // 3. 4 Way Intersection
-        // 4. T Intersection
-        // 5. 4 Way Roundabound
-        
-        // 6. Start road which has 1 exit point
-        
-        // So we need to generate a procedural road system that has a single entry and a single start.
-        
-        // For this we need to be able to configure some of the generation settings. As later we should be able to generate houses, trees and other structures.
-        
-        
-        
-        
+        [SerializeField] private RoadGenerationConfig config;
+
+        // Services injected from DI container
+        private IPathGenerator _pathGenerator;
+        private IBranchGenerator _branchGenerator;
+        private IRoadSpawner _roadSpawner;
+
+        // State
+        private IGrid<RoadTileData> _grid;
+        private List<Vector2Int> _mainPath;
+        private System.Random _random;
+        private GameObject _roadContainer;
+        private List<District> _districts;
+
+        /// <summary>
+        /// Initialize services from DI container
+        /// Can optionally provide custom implementations for testing
+        /// </summary>
+        public void Initialize(
+            IPathGenerator pathGenerator = null,
+            IBranchGenerator branchGenerator = null,
+            IRoadSpawner roadSpawner = null)
+        {
+            bool useHierarchical = config != null && config.useHierarchicalGeneration;
+
+            if (useHierarchical)
+            {
+                _pathGenerator = pathGenerator ?? DI.GetService<HierarchicalRoadGenerator>();
+                _branchGenerator = null;
+            }
+            else
+            {
+                if (pathGenerator != null)
+                {
+                    _pathGenerator = pathGenerator;
+                }
+                else
+                {
+                    var fallback = config != null ? config.fallbackGenerator : PathGeneratorType.BiasedRandomWalk;
+                    _pathGenerator = fallback == PathGeneratorType.Hierarchical
+                        ? DI.GetService<HierarchicalRoadGenerator>()
+                        : DI.GetService<BiasedRandomWalkGenerator>();
+                }
+
+                _branchGenerator = branchGenerator ?? DI.GetService<IBranchGenerator>();
+            }
+
+            _roadSpawner = roadSpawner ?? DI.GetService<IRoadSpawner>();
+        }
+
+        public void GenerateRoads()
+        {
+            if (_pathGenerator == null)
+            {
+                Initialize();
+            }
+
+            if (config == null)
+            {
+                Debug.LogError("RoadGenerationConfig is not assigned");
+                return;
+            }
+
+            try
+            {
+                config.Validate();
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Invalid configuration: {e.Message}");
+                return;
+            }
+
+            ClearRoads();
+            InitializeState();
+
+            if (!TryGenerateMainPath())
+            {
+                Debug.LogError("Failed to generate main path");
+                return;
+            }
+
+            bool usingHierarchical = config.useHierarchicalGeneration || _pathGenerator is HierarchicalRoadGenerator;
+
+            if (!usingHierarchical)
+            {
+                MarkPathInGrid(_mainPath, isMainPath: true);
+
+                if (_branchGenerator != null)
+                {
+                    var branches = _branchGenerator.GenerateBranches(_grid, _mainPath, config, _random);
+                    MarkPathInGrid(branches, isMainPath: false);
+                    Debug.Log($"Generated standard road network: {_mainPath.Count} main path tiles, {branches.Count} branch tiles");
+                }
+                else
+                {
+                    Debug.Log($"Generated standard road network: {_mainPath.Count} main path tiles");
+                }
+            }
+            else
+            {
+                Debug.Log($"Generated hierarchical road network with {_mainPath.Count} main path tiles");
+            }
+
+            FillTileTypes();
+            CreateRoadContainer();
+            _roadSpawner.SpawnRoads(_grid, config, _roadContainer.transform);
+        }
+
+        public void ClearRoads()
+        {
+            _roadSpawner?.ClearRoads();
+
+            if (_roadContainer != null)
+            {
+                DestroyImmediate(_roadContainer);
+                _roadContainer = null;
+            }
+
+            _grid = null;
+            _mainPath = null;
+            _districts = null;
+        }
+
+        public RoadTileData GetTileAt(int x, int y)
+        {
+            if (_grid == null) return default;
+            if (!_grid.IsValidPosition(x, y)) return default;
+            return _grid.Get(x, y);
+        }
+
+        public List<Vector2Int> GetMainPath()
+        {
+            return _mainPath != null ? new List<Vector2Int>(_mainPath) : new List<Vector2Int>();
+        }
+
+        public List<District> GetDistricts()
+        {
+            return _districts != null ? new List<District>(_districts) : new List<District>();
+        }
+
+        public District GetDistrictAt(int x, int y)
+        {
+            if (_districts == null) return null;
+            var position = new Vector2Int(x, y);
+
+            foreach (var district in _districts)
+            {
+                if (district.Bounds.Contains(position))
+                {
+                    return district;
+                }
+            }
+
+            return null;
+        }
+
+        public DistrictType? GetDistrictTypeAt(int x, int y)
+        {
+            var district = GetDistrictAt(x, y);
+            return district?.Type;
+        }
+
+        private void InitializeState()
+        {
+            _grid = new Grid2D<RoadTileData>(config.gridWidth, config.gridHeight);
+
+            foreach (var pos in _grid.GetAllPositions())
+            {
+                _grid.Set(pos.x, pos.y, RoadTileData.Empty(pos.x, pos.y));
+            }
+
+            _random = config.randomSeed == 0
+                ? new System.Random()
+                : new System.Random(config.randomSeed);
+
+            _mainPath = new List<Vector2Int>();
+            _districts = null;
+        }
+
+        private bool TryGenerateMainPath()
+        {
+            const int MaxRetries = 5;
+
+            for (int attempt = 0; attempt < MaxRetries; attempt++)
+            {
+                var startPos = GridUtility.GetRandomEdgePosition(
+                    config.startEdge,
+                    config.gridWidth,
+                    config.gridHeight,
+                    _random);
+
+                var exitPos = GridUtility.GetRandomEdgePosition(
+                    config.exitEdge,
+                    config.gridWidth,
+                    config.gridHeight,
+                    _random);
+
+                if (startPos == exitPos || Vector2Int.Distance(startPos, exitPos) < 2)
+                {
+                    Debug.LogWarning($"Start and exit too close/identical: {startPos} -> {exitPos}");
+                    continue;
+                }
+
+                if (attempt > 0)
+                {
+                    foreach (var pos in _grid.GetAllPositions())
+                    {
+                        _grid.Set(pos.x, pos.y, RoadTileData.Empty(pos.x, pos.y));
+                    }
+                }
+
+                var startTile = _grid.Get(startPos.x, startPos.y);
+                startTile.Type = RoadTileType.Start;
+                startTile.IsMainPath = true;
+                startTile.GridPosition = startPos;
+                _grid.Set(startPos.x, startPos.y, startTile);
+
+                var exitTile = _grid.Get(exitPos.x, exitPos.y);
+                exitTile.Type = RoadTileType.Exit;
+                exitTile.IsMainPath = true;
+                exitTile.GridPosition = exitPos;
+                _grid.Set(exitPos.x, exitPos.y, exitTile);
+
+                _mainPath = _pathGenerator.GeneratePath(_grid, startPos, exitPos, config, _random);\n\n                if (_pathGenerator is HierarchicalRoadGenerator hierarchicalGen)\n                {\n                    _districts = hierarchicalGen.GetGeneratedDistricts();\n                }\n                else\n                {\n                    _districts = null;\n                }
+
+                if (_mainPath.Count == 0)
+                {
+                    Debug.LogWarning($"Path generation attempt {attempt + 1} failed");
+                    continue;
+                }
+
+                if (_mainPath.Count < config.minPathLength)
+                {
+                    Debug.LogWarning($"Path too short: {_mainPath.Count} < {config.minPathLength}");
+                    continue;
+                }
+
+                return true;
+            }
+
+            return false;
+        }
+
+        private void MarkPathInGrid(List<Vector2Int> path, bool isMainPath)
+        {
+            foreach (var pos in path)
+            {
+                var tile = _grid.Get(pos.x, pos.y);
+
+                if (tile.IsSpecial()) continue;
+
+                tile.Type = RoadTileType.Straight;
+                tile.IsMainPath = isMainPath;
+                tile.GridPosition = pos;
+
+                _grid.Set(pos.x, pos.y, tile);
+            }
+        }
+
+        private void FillTileTypes()
+        {
+            foreach (var pos in _grid.GetAllPositions())
+            {
+                var tile = _grid.Get(pos.x, pos.y);
+
+                if (tile.IsEmpty()) continue;
+
+                var updatedTile = RoadTileUtility.DetermineTileType(
+                    _grid,
+                    pos,
+                    config.roundaboutProbability,
+                    _random);
+
+                _grid.Set(pos.x, pos.y, updatedTile);
+            }
+        }
+
+        private void CreateRoadContainer()
+        {
+            _roadContainer = new GameObject("Road Network");
+            _roadContainer.transform.SetParent(transform);
+            _roadContainer.transform.localPosition = Vector3.zero;
+        }
+
+        private void Awake()
+        {
+            Initialize();
+        }
+
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            if (config != null)
+            {
+                try
+                {
+                    config.Validate();
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogWarning($"Configuration validation failed: {e.Message}");
+                }
+            }
+        }
+#endif
     }
 }
+

@@ -46,14 +46,40 @@
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.2.2f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\Roads\Interfaces\IRoadSpawner.cs" />
+    <Compile Include="Assets\Scripts\Roads\Utilities\RoadTileUtility.cs" />
     <Compile Include="Assets\Packages\Ash Assets\Arcade Vehicle Physics\Scripts\ArcadeVehicleController.cs" />
+    <Compile Include="Assets\Tests\EditMode\PathGeneratorTests.cs" />
     <Compile Include="Assets\Packages\Procedular Stylized Skybox\Script\DayNightCycleWeather.cs" />
+    <Compile Include="Assets\Tests\EditMode\RoadTileUtilityTests.cs" />
+    <Compile Include="Assets\Scripts\Roads\Implementations\BiasedRandomWalkGenerator.cs" />
     <Compile Include="Assets\Packages\Ash Assets\Arcade Vehicle Physics\Scripts\SkidMarks.cs" />
+    <Compile Include="Assets\Scripts\Roads\Data\RoadGenerationConfig.cs" />
+    <Compile Include="Assets\Scripts\Roads\Interfaces\IPathGenerator.cs" />
+    <Compile Include="Assets\Scripts\Roads\Data\GridEdge.cs" />
+    <Compile Include="Assets\Scripts\Roads\Implementations\RandomBranchGenerator.cs" />
+    <Compile Include="Assets\Scripts\Roads\Utilities\RoadTileDataExtensions.cs" />
+    <Compile Include="Assets\Scripts\Roads\Interfaces\IBranchGenerator.cs" />
     <Compile Include="Assets\Packages\Ash Assets\Arcade Vehicle Physics\Scripts\InputManager_ArcadeVP.cs" />
+    <Compile Include="Assets\Scripts\Core\DI.cs" />
+    <Compile Include="Assets\Scripts\Roads\Implementations\UnityRoadSpawner.cs" />
     <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
+    <Compile Include="Assets\Scripts\Roads\Data\Direction.cs" />
+    <Compile Include="Assets\Scripts\Roads\ProceduralRoads.cs" />
+    <Compile Include="Assets\Tests\EditMode\DITests.cs" />
     <Compile Include="Assets\Scripts\Core\Points.cs" />
+    <Compile Include="Assets\Scripts\Roads\Interfaces\IGrid.cs" />
+    <Compile Include="Assets\Scripts\Roads\Data\RoadTileType.cs" />
+    <Compile Include="Assets\Tests\EditMode\BranchGeneratorTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\GridUtilityTests.cs" />
+    <Compile Include="Assets\Scripts\Roads\Data\District.cs" />
+    <Compile Include="Assets\Scripts\Roads\Implementations\Grid2D.cs" />
+    <Compile Include="Assets\Scripts\Roads\Data\RoadTileData.cs" />
+    <Compile Include="Assets\Scripts\Roads\Utilities\GridUtility.cs" />
     <Compile Include="Assets\Scripts\Weather\DayNightCycle.cs" />
+    <None Include="Assets\Packages\Microsoft.Extensions.DependencyInjection.Abstractions.9.0.6\useSharedDesignerContext.txt" />
     <None Include="Packages\com.gurbu.gpui-pro.terrain\package.json" />
+    <None Include="Assets\Packages\Microsoft.Extensions.DependencyInjection.9.0.6\lib\netstandard2.1\Microsoft.Extensions.DependencyInjection.xml" />
     <None Include="Packages\com.gurbu.gpui-pro.prefab\package.json" />
     <None Include="Assets\Packages\GPUInstancerPro\Readme.txt" />
     <None Include="Assets\Packages\BOXOPHOBIC\Atmospheric Height Fog\Core\Shaders\UI Default (Height Fog Support).shader" />
@@ -61,8 +87,10 @@
     <None Include="Assets\Packages\BOXOPHOBIC\Atmospheric Height Fog\Core\Resources\Height Fog Preset.shader" />
     <None Include="Packages\com.gurbu.gpui-pro.terrain\Demos\!!!How to import demos!!!.txt" />
     <None Include="Assets\Packages\Procedular Stylized Skybox\Shader\SkyBoxShader.shader" />
+    <None Include="Assets\Packages\Microsoft.Extensions.DependencyInjection.Abstractions.9.0.6\lib\netstandard2.1\Microsoft.Extensions.DependencyInjection.Abstractions.xml" />
     <None Include="Packages\com.gurbu.gpui-pro\package.json" />
     <None Include="Packages\com.gurbu.gpui-pro.prefab\Demos\!!!How to import demos!!!.txt" />
+    <None Include="Assets\Packages\Microsoft.Extensions.DependencyInjection.9.0.6\useSharedDesignerContext.txt" />
     <None Include="Assets\Packages\BOXOPHOBIC\Atmospheric Height Fog\Demo\Shaders\My Transparent Shader.shader" />
     <None Include="Assets\Packages\BOXOPHOBIC\Atmospheric Height Fog\Core\Resources\Height Fog Global.shader" />
     <None Include="Assets\Packages\BOXOPHOBIC\Atmospheric Height Fog\Core\Resources\Height Fog Standalone.shader" />
@@ -448,6 +476,12 @@
     </Reference>
     <Reference Include="System.Runtime.CompilerServices.Unsafe">
       <HintPath>C:\Users\ariel\Documents\GitHub\hostage-resqueue\Library\PackageCache\com.unity.collections@d49facba0036\Unity.Collections.Tests\System.Runtime.CompilerServices.Unsafe\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions">
+      <HintPath>C:\Users\ariel\Documents\GitHub\hostage-resqueue\Assets\Packages\Microsoft.Extensions.DependencyInjection.Abstractions.9.0.6\lib\netstandard2.1\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection">
+      <HintPath>C:\Users\ariel\Documents\GitHub\hostage-resqueue\Assets\Packages\Microsoft.Extensions.DependencyInjection.9.0.6\lib\netstandard2.1\Microsoft.Extensions.DependencyInjection.dll</HintPath>
     </Reference>
     <Reference Include="netstandard">
       <HintPath>C:\Program Files\Unity\Hub\Editor\6000.2.2f1\Editor\Data\NetStandard\ref\2.1.0\netstandard.dll</HintPath>
@@ -1053,9 +1087,6 @@
       <Project>{7faf4c1c-e5ff-d6b1-4ce9-e277aa8f8be5}</Project>
       <Name>OccaSoftware.Buto.Demo</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Assets\Scripts\Roads\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
