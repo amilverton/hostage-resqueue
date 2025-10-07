@@ -67,8 +67,9 @@ namespace Roads
             serviceCollection.AddTransient<IPathGenerator, BiasedRandomWalkGenerator>();
             serviceCollection.AddTransient<IBranchGenerator, RandomBranchGenerator>();
 
-            // Register road spawner as Singleton (one instance for lifetime)
-            serviceCollection.AddSingleton<IRoadSpawner, UnityRoadSpawner>();
+            // Register road spawner as Transient (stateful, should not be shared)
+            // Each ProceduralRoads instance needs its own spawner to avoid cross-contamination
+            serviceCollection.AddTransient<IRoadSpawner, UnityRoadSpawner>();
 
             // Build service provider
             _serviceProvider = serviceCollection.BuildServiceProvider();
@@ -78,6 +79,12 @@ namespace Roads
 
         public static T GetService<T>()
         {
+            // Lazy initialization guard for edit-mode and unit tests
+            if (_serviceProvider == null)
+            {
+                Init();
+            }
+
             return _serviceProvider.GetRequiredService<T>();
         }
     }
@@ -87,20 +94,23 @@ namespace Roads
 ### Service Lifetimes
 
 **Transient**: New instance created every time the service is requested
-- Use for: Generators, algorithms, stateless services
-- Examples: `IPathGenerator`, `IBranchGenerator`
+- Use for: Generators, algorithms, stateless services, stateful services that shouldn't be shared
+- Examples: `IPathGenerator`, `IBranchGenerator`, `IRoadSpawner`
+- **Important**: `IRoadSpawner` is transient because it maintains mutable state (`_spawnedObjects`). Sharing a singleton across multiple road generators would cause cross-contamination between generation runs.
 
 **Singleton**: Single instance shared throughout application lifetime
-- Use for: Managers, spawners, services that maintain state
-- Examples: `IRoadSpawner`
+- Use for: True global managers with shared state (e.g., audio manager, input manager)
+- **Not used in this roads system** - all services are transient to avoid state pollution
 
 **Scoped**: Not used in this architecture (Unity doesn't have request scopes like web apps)
 
 ### Key Features
 
-- **Auto-initialization**: `[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSplashScreen)]` runs before anything else
+- **Auto-initialization**: `[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSplashScreen)]` runs before anything else in play mode
+- **Lazy initialization**: `GetService<T>()` will call `Init()` if container is null (handles edit-mode and unit tests)
 - **Simple API**: Just `DI.GetService<T>()` - throws exception if service not registered
-- **No manual setup**: Container initializes automatically, no need for bootstrap scripts
+- **No manual setup in play mode**: Container initializes automatically
+- **Edit-mode/test support**: Automatically initializes on first service request if not already initialized
 
 ## Core Interfaces
 
@@ -423,6 +433,7 @@ public class RandomBranchGenerator : IBranchGenerator
         System.Random random)
     {
         var branch = new List<Vector2Int>();
+        var visited = new HashSet<Vector2Int>(); // Track visited positions to prevent backtracking
         var current = GridUtility.GetNeighborInDirection(start, initialDirection);
 
         // Early exit: invalid starting position
@@ -431,7 +442,16 @@ public class RandomBranchGenerator : IBranchGenerator
 
         for (int i = 0; i < maxLength; i++)
         {
+            // Early exit: already visited (prevents oscillation and duplicates)
+            if (visited.Contains(current)) break;
+
             branch.Add(current);
+            visited.Add(current);
+
+            // Mark tile temporarily to prevent other branches from using it
+            var tile = grid.Get(current.x, current.y);
+            tile.Type = RoadTileType.Straight; // Placeholder to mark as occupied
+            grid.Set(current.x, current.y, tile);
 
             var availableDirections = GridUtility.GetAvailableDirections(grid, current);
 
@@ -439,7 +459,12 @@ public class RandomBranchGenerator : IBranchGenerator
             if (availableDirections.Count == 0) break;
 
             var nextDirection = availableDirections[random.Next(availableDirections.Count)];
-            current = GridUtility.GetNeighborInDirection(current, nextDirection);
+            var next = GridUtility.GetNeighborInDirection(current, nextDirection);
+
+            // Early exit: next position already visited
+            if (visited.Contains(next)) break;
+
+            current = next;
         }
 
         return branch;
@@ -528,6 +553,7 @@ public class UnityRoadSpawner : IRoadSpawner
             RoadTileType.TIntersection => config.tIntersectionPrefab,
             RoadTileType.FourWay => config.fourWayPrefab,
             RoadTileType.Roundabout => config.roundaboutPrefab,
+            RoadTileType.DeadEnd => config.deadEndPrefab,
             RoadTileType.Start => config.startPrefab,
             RoadTileType.Exit => config.exitPrefab,
             _ => null
@@ -549,8 +575,9 @@ public enum RoadTileType
     TIntersection,
     FourWay,
     Roundabout,
-    Start,
-    Exit
+    DeadEnd,        // Single connection endpoint (branch terminus)
+    Start,          // Entry point (special dead end)
+    Exit            // Exit point (special dead end)
 }
 
 public enum GridEdge
@@ -638,8 +665,9 @@ public class RoadGenerationConfig
     public GameObject tIntersectionPrefab;
     public GameObject fourWayPrefab;
     public GameObject roundaboutPrefab;
-    public GameObject startPrefab;
-    public GameObject exitPrefab;
+    public GameObject deadEndPrefab;     // Single-connection road terminus
+    public GameObject startPrefab;       // Entry point marker
+    public GameObject exitPrefab;        // Exit point marker
 
     [Header("Generation Settings")]
     public int randomSeed = 0;
@@ -800,7 +828,8 @@ public static class RoadTileUtility
         switch (connectionCount)
         {
             case 1:
-                tile.Type = RoadTileType.Straight;
+                // Single connection = dead end (not straight road)
+                tile.Type = RoadTileType.DeadEnd;
                 tile.Rotation = CalculateDeadEndRotation(north, south, east, west);
                 break;
 
@@ -1083,6 +1112,23 @@ namespace Roads
                     config.gridWidth,
                     config.gridHeight,
                     _random);
+
+                // Early exit: start and exit are the same position (or too close)
+                if (startPos == exitPos || Vector2Int.Distance(startPos, exitPos) < 2)
+                {
+                    Debug.LogWarning($"Start and exit too close/identical: {startPos} -> {exitPos}");
+                    continue;
+                }
+
+                // Clear any previous attempt's markers before setting new ones
+                if (attempt > 0)
+                {
+                    // Reset all cells to empty (full grid reset for safety)
+                    foreach (var pos in _grid.GetAllPositions())
+                    {
+                        _grid.Set(pos.x, pos.y, RoadTileData.Empty(pos.x, pos.y));
+                    }
+                }
 
                 // Set start and exit in grid
                 var startTile = _grid.Get(startPos.x, startPos.y);
