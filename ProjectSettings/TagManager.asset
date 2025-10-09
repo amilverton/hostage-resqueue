@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags: []
+  tags:
+  - Civilian
   layers:
   - Default
   - TransparentFX
@@ -14,7 +15,7 @@ TagManager:
   - drivable
   - carbody
   - SphereRB
-  - 
+  - Civilian
   - 
   - 
   - 
