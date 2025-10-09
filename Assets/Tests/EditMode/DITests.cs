@@ -1,3 +1,4 @@
+using Core;
 using NUnit.Framework;
 using Roads;
 
@@ -9,13 +10,13 @@ namespace RoadsTests
         [SetUp]
         public void Setup()
         {
-            DI.Init();
+            Di.Init();
         }
 
         [Test]
         public void GetService_ReturnsRegisteredImplementation()
         {
-            var pathGenerator = DI.GetService<IPathGenerator>();
+            var pathGenerator = Di.GetService<IPathGenerator>();
 
             Assert.IsNotNull(pathGenerator);
             Assert.IsInstanceOf<BiasedRandomWalkGenerator>(pathGenerator);
@@ -24,8 +25,8 @@ namespace RoadsTests
         [Test]
         public void GetService_ReturnsTransientInstances()
         {
-            var spawnerA = DI.GetService<IRoadSpawner>();
-            var spawnerB = DI.GetService<IRoadSpawner>();
+            var spawnerA = Di.GetService<IRoadSpawner>();
+            var spawnerB = Di.GetService<IRoadSpawner>();
 
             Assert.IsNotNull(spawnerA);
             Assert.IsNotNull(spawnerB);

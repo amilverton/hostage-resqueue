@@ -1,6 +1,12 @@
 using UnityEngine;
 
-public class Points
+// Okay so the game idea is that the player will collect people who need rescuing and the idea is that the player once he has gotten as many people as he can
+// He will then go back to his garage where he will then give them to the police almost like a deal. So depending on how many he will get money. So we will have people as a currancy.
+// The idea with this is then you should be able to buy upgrades to the vehicle of your choice. So I will need to work out what kind of systems we will need to integrate.
+
+// This is a comedic game and not something obviously to be taken seriously.
+
+public class PointsStore
 {
     
 }

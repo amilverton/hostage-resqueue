@@ -6,7 +6,6 @@ using UnityEngine;
 
 // This is a comedic game and not something obviously to be taken seriously.
 
-
 public class Points
 {
     
